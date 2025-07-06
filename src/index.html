@@ -1,0 +1,293 @@
+<!DOCTYPE html>
+<html lang="ru">
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Настройки Wi-Fi</title>
+    <link rel="icon" type="image/png" href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADAAAAAwCAYAAABXAvmHAAAACXBIWXMAAAsTAAALEwEAmpwYAAADhUlEQVR4nO2Zy0tUURzHP2mmqQVZmD1ALBdli3SdofkXFAWV2qZdZWWLiJZFrXxlUrRr5aNN9FhV28pNaKaBWNFrYW5MNDJTMg78Jn4czty5584oI80XDgz397xnzu91LmSQQQapQh5wFugB3gATwC9ZE/KsR3gMb9qhFVgMuVpIQ7z0eIEXpCE+KwcbgFJgraxSeRajG960QjbwW5z7E+eM5wltUXiNzLKiKIC2X+3u+wC+D4qvOqItb5id6hOjo8ApoEDRNwNDyrFbAbruKL7XQLGiFYjuUaH3pupfuuEIwkngnrzYlHr+EygL0LUTmFX8U+Jon+i07bQn6/wRj8wyDxwNofM4sOCh91BU5zdJAYopMmmyCRhzGDFFqsZDd43ILFprTApdv3o2DmyM8gI3lZIZ+ftj2AscAxqBSqKjEjgh/4rRGUO52IzZ7/BVvN06qya4lhtnrNja6iN8XQl/AXI8ZPfIjo0AP2SNSEBWeOhZA3xVflwNK5gFfFKCzR4GuxIEqKF1emxIs5L9CKwKI1RmGb0L5Idw/plHZnka4iXyxbaWC0rR/5ALDFiCpuiUBMh0Wfz3JdMUyKoFHlg85p+IhxKxqfkHZKNCYR3Q7VCQE+fM62NzMUDvJes4VTh4jI1By7bxZT0RcBKYU4pOO3g6rJ1PhEeKv81Bb1L0OfEhKTRbxczGW0UPU8wOKP5hB10XsXOkAEVK4XcHfVrRC0Mezxj/tIOue6sNKfB/5b/AhQSj4Iiim2yTCHUeR+h8ss7bQexqKdoV3aTKRHis+FsTtBCRg3i9I42+AlY7eCusNGpSZTxcttrvXXHS6EAyaTTXkYcHZfKKh06L/6Fkm0JZddbOJxpWSpIpZFFaiRxpD8K2Ek+WspXIitjM5cg/EdTMzcvOL2kzZ3DNaqdD9yASE22SYWZkDUvA7k6inb7iIcs2a6BxtRBLjSZroNniq0AH5oyMeXoUrJdxsCoJJ6tER701mpbLIBQm4OPCDNLflJJ+GbjfpWCor/Uc6ouIiMMemWVBhvNEaPC8VjlIktDtcmxNyl1/r9W7mLjZEaCr3HGx1SPLdbHlare9kS2OxrtaLLaKzu2QV4umOC7L1WIMQZ1hdYTL3X0Rbf2/1+s+HzgapeznyyqTZ2n7gQOZFcJmluekIVpW+ke+PClC3fLBY1xS5qz8Hkr3z6wZZMAKxF+x3w7NoGR4dgAAAABJRU5ErkJggg==">
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        background-color: #f0f0f0;
+        margin: 0;
+        padding: 10px;
+        font-size: 14px;
+      }
+
+      .container {
+        max-width: 500px;
+        margin: 0 auto;
+        background: white;
+        padding: 15px;
+        border-radius: 6px;
+        box-shadow: 0 0 8px rgba(0, 0, 0, 0.1);
+      }
+
+      h1,
+      h2 {
+        text-align: center;
+        color: #333;
+        font-size: 18px;
+        margin: 10px 0;
+      }
+
+      .form-row {
+        display: flex;
+        align-items: center;
+        margin-bottom: 8px;
+      }
+
+      label {
+        flex: 0 0 50px;
+        font-size: 13px;
+        margin-right: 10px;
+      }
+
+      label[for="ssidList"] {
+        margin-bottom: 10px;
+        display: block;
+      }
+
+      input,
+      select {
+        flex: 1;
+        padding: 6px;
+        border: 1px solid #ccc;
+        border-radius: 3px;
+        box-sizing: border-box;
+        font-size: 13px;
+      }
+
+      select {
+        height: 80px;
+      }
+
+      button {
+        width: 100%;
+        padding: 8px;
+        background: #28a745;
+        color: white;
+        border: none;
+        border-radius: 3px;
+        cursor: pointer;
+        margin-top: 8px;
+        font-size: 14px;
+      }
+
+      button:hover {
+        background: #218838;
+      }
+
+      button:disabled {
+        background: #6c757d;
+        cursor: not-allowed;
+      }
+
+      hr {
+        border: 0;
+        height: 2px;
+        background: linear-gradient(to right, #fff, #28a745, #fff);
+        margin: 15px 0;
+      }
+
+      #dynamic-parameters {
+          font-family: monospace;
+      }
+      .parameter-row {
+          display: flex;
+          margin-bottom: 5px;
+      }
+      .parameter-key {
+          width: 120px;
+          font-weight: bold;
+      }
+      .parameter-value {
+          flex: 1;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <form id="settingsForm">
+        <h1>Настройки Wi-Fi</h1>
+        <div class="form-row">
+          <select id="ssidList" multiple></select>
+        </div>
+        <div class="form-row">
+          <button type="button" id="refreshBtn">Обновить</button>
+        </div>
+        <div class="form-row">
+          <label for="wifiSsid">SSID:</label>
+          <input type="text" id="wifiSsid" name="wifiSsid">
+        </div>
+        <div class="form-row">
+          <label for="wifiPassword">Пароль:</label>
+          <input type="password" id="wifiPassword" name="wifiPassword">
+        </div>
+        <div id="dynamic-sections"></div>
+        <hr>
+        <div class="form-row">
+          <button type="submit">Сохранить и перезагрузить</button>
+        </div>
+      </form>
+      <div id="dynamic-parameters"></div>
+    </div>
+    <script>
+      document.addEventListener('DOMContentLoaded', () => {
+        const form = document.getElementById('settingsForm');
+        const ssidList = document.getElementById('ssidList');
+        const wifiSsidInput = document.getElementById('wifiSsid');
+        const wifiPasswordInput = document.getElementById('wifiPassword');
+        const refreshBtn = document.getElementById('refreshBtn');
+        let isScanning = false;
+
+        async function loadSettings() {
+          try {
+            const response = await fetch('/settings');
+            if (!response.ok) {
+              throw new Error('Failed to load settings');
+            }
+            const data = await response.json();
+            wifiSsidInput.value = data.wifiSsid;
+            wifiPasswordInput.value = data.wifiPassword;
+            if (data.header) {
+              document.title = data.header;
+              const header = document.createElement('h1');
+              header.id = 'header';
+              header.textContent = data.header;
+              document.querySelector('.container').prepend(header);
+            }
+
+            const container = document.getElementById('dynamic-sections');
+            container.innerHTML = '';
+            if (Array.isArray(data.sections)) {
+              data.sections.forEach(section => {
+                const hr = document.createElement('hr');
+                container.appendChild(hr);
+                const sectionDiv = document.createElement('div');
+                sectionDiv.className = 'section';
+                const title = document.createElement('h2');
+                title.textContent = section.title;
+                sectionDiv.appendChild(title);
+                section.rows.forEach(row => {
+                  const formRow = document.createElement('div');
+                  formRow.className = 'form-row';
+                  const label = document.createElement('label');
+                  label.htmlFor = row.name;
+                  label.textContent = row.title;
+                  formRow.appendChild(label);
+                  const input = document.createElement('input');
+                  input.type = row.type;
+                  input.id = row.name;
+                  input.name = row.name;
+                  input.value = row.value;
+                  formRow.appendChild(input);
+                  sectionDiv.appendChild(formRow);
+                });
+                container.appendChild(sectionDiv);
+              });
+            }
+          } catch (error) {
+            console.error('Error loading settings:', error);
+          }
+        }
+
+        async function updateParameters() {
+          try {
+            const response = await fetch('/parameters');
+            if (!response.ok) {
+              throw new Error('Failed to retrieve parameters');
+            }
+            const data = await response.json();
+            const div = document.getElementById('dynamic-parameters');
+            div.innerHTML = '';
+            for (const [key, value] of Object.entries(data)) {
+              const row = document.createElement('div');
+              row.className = 'parameter-row';
+              const keySpan = document.createElement('span');
+              keySpan.className = 'parameter-key';
+              keySpan.textContent = `${key}:`;
+              const valueSpan = document.createElement('span');
+              valueSpan.className = 'parameter-value';
+              valueSpan.textContent = value;
+              row.appendChild(keySpan);
+              row.appendChild(valueSpan);
+              div.appendChild(row);
+            }
+          } catch (error) {
+            console.error('Error retrieving parameters:', error);
+          }
+        }
+
+        async function scanNetworks() {
+          if (isScanning) return;
+          isScanning = true;
+          refreshBtn.disabled = true;
+          refreshBtn.textContent = 'Сканирование...';
+          ssidList.innerHTML = '';
+
+          try {
+            let data;
+            do {
+              try {
+                const response = await fetch('/scan');
+                if (!response.ok) {
+                  throw new Error('Network error');
+                }
+                data = await response.json();
+                if (!Array.isArray(data)) {
+                  await new Promise(resolve => setTimeout(resolve, 1000));
+                }
+              } catch (error) {
+                console.error('Scan error:', error);
+                await new Promise(resolve => setTimeout(resolve, 1000));
+                data = null;
+              }
+            } while (!Array.isArray(data));
+
+            data.forEach(network => {
+              const option = document.createElement('option');
+              option.value = network.ssid;
+              option.text = `${network.ssid} (${network.rssi} dBm)`;
+              ssidList.appendChild(option);
+            });
+          } finally {
+            isScanning = false;
+            refreshBtn.disabled = false;
+            refreshBtn.textContent = 'Обновить';
+          }
+        }
+
+        async function saveSettings(event) {
+          event.preventDefault();
+          const formData = new FormData(form);
+          try {
+            const response = await fetch('/save', {
+              method: 'POST',
+              body: formData
+            });
+            if (!response.ok) {
+              throw new Error('Failed to save settings');
+            }
+            const message = await response.text();
+            alert(message);
+            window.location.reload();
+          } catch (error) {
+            console.error('Error saving settings:', error);
+          }
+        }
+
+        loadSettings();
+        scanNetworks();
+        updateParameters();
+        setInterval(updateParameters, 2000);
+
+        refreshBtn.addEventListener('click', scanNetworks);
+        ssidList.addEventListener('change', () => {
+          wifiSsidInput.value = ssidList.value;
+        });
+        form.addEventListener('submit', saveSettings);
+      });
+    </script>
+  </body>
+</html>
