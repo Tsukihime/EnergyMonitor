@@ -14,6 +14,14 @@
         font-size: 14px;
       }
 
+      h1,
+      h2 {
+        text-align: center;
+        color: #333;
+        font-size: 18px;
+        margin: 10px 0;
+      }
+
       .container {
         max-width: 500px;
         margin: 0 auto;
@@ -21,14 +29,6 @@
         padding: 15px;
         border-radius: 6px;
         box-shadow: 0 0 8px rgba(0, 0, 0, 0.1);
-      }
-
-      h1,
-      h2 {
-        text-align: center;
-        color: #333;
-        font-size: 18px;
-        margin: 10px 0;
       }
 
       .form-row {
@@ -48,18 +48,13 @@
         display: block;
       }
 
-      input,
-      select {
+      input {
         flex: 1;
         padding: 6px;
         border: 1px solid #ccc;
         border-radius: 3px;
         box-sizing: border-box;
         font-size: 13px;
-      }
-
-      select {
-        height: 80px;
       }
 
       button {
@@ -72,6 +67,7 @@
         cursor: pointer;
         margin-top: 8px;
         font-size: 14px;
+        transition: background-color 0.1s;
       }
 
       button:hover {
@@ -83,26 +79,65 @@
         cursor: not-allowed;
       }
 
+      .wifi-list {
+        width: 100%;
+        list-style: none;
+        padding: 0;
+        margin: 10px 0;
+        background: #fafafa;
+        border-radius: 6px;
+        overflow: hidden;
+        border: 1px solid #ccc;
+      }
+
+      .wifi-item {
+        display: flex;
+        align-items: center;
+        padding: 10px;
+        border-bottom: 1px solid #e0e0e0;
+        background: white;
+        transition: background-color 0.1s ease;
+        cursor: pointer;
+      }
+
+      .wifi-item:hover {
+        background-color: #f0f0f0;
+      }
+
+      .wifi-item.selected {
+        background-color: #e6f4ea;
+        font-weight: 500;
+      }
+
+      .wifi-icon {
+        width: 20px;
+        height: 20px;
+        margin-right: 8px;
+      }
+
+      #dynamic-parameters {
+        font-family: monospace;
+      }
+
+      .parameter-row {
+        display: flex;
+        margin-bottom: 5px;
+      }
+
+      .parameter-key {
+        width: 120px;
+        font-weight: bold;
+      }
+
+      .parameter-value {
+        flex: 1;
+      }
+
       hr {
         border: 0;
         height: 2px;
         background: linear-gradient(to right, #fff, #28a745, #fff);
         margin: 15px 0;
-      }
-
-      #dynamic-parameters {
-          font-family: monospace;
-      }
-      .parameter-row {
-          display: flex;
-          margin-bottom: 5px;
-      }
-      .parameter-key {
-          width: 120px;
-          font-weight: bold;
-      }
-      .parameter-value {
-          flex: 1;
       }
     </style>
   </head>
@@ -111,7 +146,7 @@
       <form id="settingsForm">
         <h1>Настройки Wi-Fi</h1>
         <div class="form-row">
-          <select id="ssidList" multiple></select>
+          <ul id="ssidList" class="wifi-list"></ul>
         </div>
         <div class="form-row">
           <button type="button" id="refreshBtn">Обновить</button>
@@ -140,6 +175,30 @@
         const wifiPasswordInput = document.getElementById('wifiPassword');
         const refreshBtn = document.getElementById('refreshBtn');
         let isScanning = false;
+
+        const wifiIcons = {
+          full: `<svg class="wifi-icon" viewBox="0 0 455.838 455.838" fill="currentColor">
+                <path d="m454.97 160.67c-0.175-0.257-0.374-0.498-0.595-0.719-60.489-60.488-140.91-93.801-226.45-93.801-85.537 0-165.95 33.306-226.44 93.788-0.94 0.933-1.48 2.21-1.48 3.552 0 1.326 0.526 2.598 1.465 3.536l33.113 33.114c0.938 0.938 2.209 1.464 3.535 1.464s2.598-0.527 3.535-1.464c49.836-49.839 115.99-77.285 186.27-77.285 70.282 0 136.43 27.447 186.27 77.284 0.938 0.938 2.209 1.464 3.534 1.464 1.326 0 2.599-0.527 3.535-1.464l33.113-33.114c0.938-0.938 1.465-2.209 1.465-3.536 2e-3 -1.005-0.303-1.987-0.869-2.819z"/>
+                <path d="m227.92 153.72c-62.056 0-120.46 24.231-164.46 68.229-1.952 1.953-1.952 5.119 1e-3 7.071l33.01 33.009c0.938 0.938 2.209 1.465 3.535 1.465s2.598-0.527 3.535-1.465c33.277-33.277 77.448-51.605 124.38-51.605 46.931 0 91.102 18.328 124.38 51.605 0.938 0.938 2.21 1.465 3.536 1.465s2.598-0.527 3.535-1.465l33.011-33.009c0.938-0.938 1.465-2.209 1.465-3.536s-0.525-2.598-1.465-3.536c-43.997-43.996-102.4-68.228-164.46-68.228z"/>
+                <path d="m227.92 241.29c-38.701 0-75.126 15.11-102.56 42.549-0.939 0.938-1.465 2.209-1.465 3.537 0 1.326 0.525 2.598 1.465 3.535l33.01 33.01c0.938 0.938 2.209 1.465 3.535 1.465s2.598-0.527 3.535-1.465c16.719-16.719 38.909-25.926 62.484-25.926s45.767 9.209 62.485 25.926c0.938 0.938 2.209 1.465 3.534 1.465s2.598-0.527 3.535-1.465l33.01-33.01c1.952-1.953 1.952-5.119 0-7.07-27.437-27.441-63.862-42.551-102.56-42.551z"/>
+                <path d="m227.92 334.08c-13.521 0-26.229 5.264-35.784 14.822-1.952 1.953-1.952 5.118 1e-3 7.07l32.248 32.25c0.938 0.938 2.209 1.465 3.535 1.465s2.599-0.527 3.535-1.465l32.248-32.25c1.952-1.953 1.952-5.118 0-7.071-9.556-9.557-22.264-14.821-35.783-14.821z"/>
+                </svg>`,
+          three: `<svg class="wifi-icon" viewBox="0 0 455.838 455.838" fill="currentColor">
+                <path d="m227.92 153.72c-62.056 0-120.46 24.231-164.46 68.229-1.952 1.953-1.952 5.119 1e-3 7.071l33.01 33.009c0.938 0.938 2.209 1.465 3.535 1.465s2.598-0.527 3.535-1.465c33.277-33.277 77.448-51.605 124.38-51.605 46.931 0 91.102 18.328 124.38 51.605 0.938 0.938 2.21 1.465 3.536 1.465s2.598-0.527 3.535-1.465l33.011-33.009c0.938-0.938 1.465-2.209 1.465-3.536s-0.525-2.598-1.465-3.536c-43.997-43.996-102.4-68.228-164.46-68.228z"/>
+                <path d="m227.92 241.29c-38.701 0-75.126 15.11-102.56 42.549-0.939 0.938-1.465 2.209-1.465 3.537 0 1.326 0.525 2.598 1.465 3.535l33.01 33.01c0.938 0.938 2.209 1.465 3.535 1.465s2.598-0.527 3.535-1.465c16.719-16.719 38.909-25.926 62.484-25.926s45.767 9.209 62.485 25.926c0.938 0.938 2.209 1.465 3.534 1.465s2.598-0.527 3.535-1.465l33.01-33.01c1.952-1.953 1.952-5.119 0-7.07-27.437-27.441-63.862-42.551-102.56-42.551z"/>
+                <path d="m227.92 334.08c-13.521 0-26.229 5.264-35.784 14.822-1.952 1.953-1.952 5.118 1e-3 7.07l32.248 32.25c0.938 0.938 2.209 1.465 3.535 1.465s2.599-0.527 3.535-1.465l32.248-32.25c1.952-1.953 1.952-5.118 0-7.071-9.556-9.557-22.264-14.821-35.783-14.821z"/>
+                </svg>`,
+          two:  `<svg class="wifi-icon" viewBox="0 0 455.838 455.838" fill="currentColor">
+                <path d="m227.92 241.29c-38.701 0-75.126 15.11-102.56 42.549-0.939 0.938-1.465 2.209-1.465 3.537 0 1.326 0.525 2.598 1.465 3.535l33.01 33.01c0.938 0.938 2.209 1.465 3.535 1.465s2.598-0.527 3.535-1.465c16.719-16.719 38.909-25.926 62.484-25.926s45.767 9.209 62.485 25.926c0.938 0.938 2.209 1.465 3.534 1.465s2.598-0.527 3.535-1.465l33.01-33.01c1.952-1.953 1.952-5.119 0-7.07-27.437-27.441-63.862-42.551-102.56-42.551z"/>
+                <path d="m227.92 334.08c-13.521 0-26.229 5.264-35.784 14.822-1.952 1.953-1.952 5.118 1e-3 7.07l32.248 32.25c0.938 0.938 2.209 1.465 3.535 1.465s2.599-0.527 3.535-1.465l32.248-32.25c1.952-1.953 1.952-5.118 0-7.071-9.556-9.557-22.264-14.821-35.783-14.821z"/>
+                </svg>`,
+          one:  `<svg class="wifi-icon" viewBox="0 0 455.838 455.838" fill="currentColor">
+               <path d="m227.92 334.08c-13.521 0-26.229 5.264-35.784 14.822-1.952 1.953-1.952 5.118 1e-3 7.07l32.248 32.25c0.938 0.938 2.209 1.465 3.535 1.465s2.599-0.527 3.535-1.465l32.248-32.25c1.952-1.953 1.952-5.118 0-7.071-9.556-9.557-22.264-14.821-35.783-14.821z"/>
+                </svg>`,
+          none: `<svg class="wifi-icon" viewBox="0 0 455.838 455.838" fill="currentColor" fill-opacity="0.3">
+               <path d="m227.92 334.08c-13.521 0-26.229 5.264-35.784 14.822-1.952 1.953-1.952 5.118 1e-3 7.07l32.248 32.25c0.938 0.938 2.209 1.465 3.535 1.465s2.599-0.527 3.535-1.465l32.248-32.25c1.952-1.953 1.952-5.118 0-7.071-9.556-9.557-22.264-14.821-35.783-14.821z"/>
+                </svg>`
+        };
 
         async function loadSettings() {
           try {
@@ -224,7 +283,6 @@
           isScanning = true;
           refreshBtn.disabled = true;
           refreshBtn.textContent = 'Сканирование...';
-          ssidList.innerHTML = '';
 
           try {
             let data;
@@ -245,11 +303,30 @@
               }
             } while (!Array.isArray(data));
 
+            ssidList.innerHTML = '';
             data.forEach(network => {
-              const option = document.createElement('option');
-              option.value = network.ssid;
-              option.text = `${network.ssid} (${network.rssi} dBm)`;
-              ssidList.appendChild(option);
+              const li = document.createElement('li');
+              li.className = 'wifi-item';
+              let icon;
+              if (network.rssi >= -67) {
+                icon = wifiIcons.full;
+              } else if (network.rssi >= -70) {
+                icon = wifiIcons.three;
+              } else if (network.rssi >= -80) {
+                icon = wifiIcons.two;
+              } else if (network.rssi >= -90) {
+                icon = wifiIcons.one;
+              } else {
+                icon = wifiIcons.none;
+              }
+
+              li.innerHTML = `${icon} ${network.ssid} (${network.rssi} dBm)`;
+              li.addEventListener('click', () => {
+                document.querySelectorAll('.wifi-item').forEach(item => item.classList.remove('selected'));
+                li.classList.add('selected');
+                wifiSsidInput.value = network.ssid;
+              });
+              ssidList.appendChild(li);
             });
           } finally {
             isScanning = false;
@@ -283,9 +360,6 @@
         setInterval(updateParameters, 2000);
 
         refreshBtn.addEventListener('click', scanNetworks);
-        ssidList.addEventListener('change', () => {
-          wifiSsidInput.value = ssidList.value;
-        });
         form.addEventListener('submit', saveSettings);
       });
     </script>
