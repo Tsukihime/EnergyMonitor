@@ -60,7 +60,7 @@ String getMQTTErrorDescription(int state) {
 void MQTT::loop() {
     static unsigned long lastReconnectAttempt = 0;
 
-    if (!client.connected()) {
+    if (!client.connected() && (WiFi.status() == WL_CONNECTED)) {
         if (millis() - lastReconnectAttempt >= 5000) {
             Serial.println("MQTT: Attempting connection...");
             String mqttClientId = Config::getDeviceName() + "-" + Config::getDeviceId();

@@ -42,6 +42,8 @@ void WiFiApConfig::handle() {
 
 bool WiFiApConfig::connectToWiFi() {
     Serial.println("Connecting to Wi-Fi: " + wifiSsid);
+    WiFi.disconnect(true);
+    WiFi.mode(WIFI_STA);
     WiFi.begin(wifiSsid.c_str(), wifiPassword.c_str());
     int attempts = 0;
     while (WiFi.status() != WL_CONNECTED && attempts < 30) {
