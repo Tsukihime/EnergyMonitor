@@ -2,14 +2,13 @@
 #include <ArduinoOTA.h>
 #include <Ticker.h>
 
-#include "Settings.h"
-#include "WebServer.h"
-#include "WiFiApConfig.h"
 #include "MQTT.h"
 #include "Config.h"
 #include "PowerMeter.h"
+#include <ApSettingsManager.h>
 
 Ticker ticker;
+ApSettingsManager apManager;
 
 void updateState() {
     // Измеряем мощность
@@ -26,7 +25,7 @@ void updateState() {
                 ",\"Power\":" + String(PowerMeter::getP(), 0) +
                 ",\"Cos φ\":" + String(PowerMeter::getCosPhi(), 3) + "}";
 
-        WebServer::setParameters(payload);
+        apManager.setLogJson(payload);
     } else {
         // Ошибка измерения
         Serial.println("Измерение не выполнено!");
@@ -35,23 +34,25 @@ void updateState() {
 
 void setup() {
     Serial.begin(115200);
-    Serial.println();
 
-    Settings::load();
+    String customParameters = R"([{
+        "title": "Настройки MQTT",
+        "rows": [
+            {"name": "mqttServer", "type": "text", "title": "Сервер:", "value": "192.168.0.1"},
+            {"name": "mqttPort", "type": "number", "title": "Порт:", "value": "1883"},
+            {"name": "mqttLogin", "type": "text", "title": "Логин:", "value": ""},
+            {"name": "mqttPassword", "type": "password", "title": "Пароль:", "value": ""}
+        ]
+    }])";
 
-    WiFiApConfig::begin(
-        Settings::getWifiSsid(),
-        Settings::getWifiPassword(),
-        Config::getDeviceName()
-    );
-
-    WebServer::begin();
+    apManager.begin(Config::getDeviceName());
+    apManager.setCustomParameters(customParameters);
 
     MQTT::init(
-        Settings::getMqttServer(), 
-        Settings::getMqttPort(), 
-        Settings::getMqttUsername(), 
-        Settings::getMqttPassword()
+        apManager.getParameter("mqttServer").c_str(), 
+        apManager.getParameter("mqttPort").toInt(), 
+        apManager.getParameter("mqttLogin").c_str(), 
+        apManager.getParameter("mqttPassword").c_str()
     );
 
     ArduinoOTA.begin();
@@ -59,7 +60,7 @@ void setup() {
 }
 
 void loop() {
-    WiFiApConfig::handle();
+    apManager.handle();
     ArduinoOTA.handle();
     MQTT::loop();
 }
