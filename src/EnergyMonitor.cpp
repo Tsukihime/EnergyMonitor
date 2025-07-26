@@ -12,7 +12,10 @@ ApSettingsManager apManager;
 
 void updateState() {
     // Измеряем мощность
-    if (PowerMeter::measure()) {
+    if (PowerMeter::measure(
+        apManager.getParameter("voltageCoeff").toFloat(),
+        apManager.getParameter("currentCoeff").toFloat()
+    )) {
         String state_topic = Config::getMqttPrefix() + "state";
         String payload = "{\"v_rms\":" + String(PowerMeter::getVrms(), 1) +
                         ",\"i_rms\":" + String(PowerMeter::getIrms(), 2) +
@@ -42,6 +45,11 @@ void setup() {
             {"name": "mqttPort", "type": "number", "title": "Порт:", "value": "1883"},
             {"name": "mqttLogin", "type": "text", "title": "Логин:", "value": ""},
             {"name": "mqttPassword", "type": "password", "title": "Пароль:", "value": ""}
+        ]
+    },{ "title": "Корекция измерений",
+        "rows": [
+            {"name": "currentCoeff", "type": "number", "title": "Ток:", "value": "1.0000"},
+            {"name": "voltageCoeff", "type": "number", "title": "Напряжение:", "value": "1.0000"}
         ]
     }])";
 

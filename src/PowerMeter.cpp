@@ -67,7 +67,7 @@ bool PowerMeter::adc_init() {
     return true;
 }
 
-bool PowerMeter::measure() {
+bool PowerMeter::measure(float voltageCalibrationFactor, float currentCalibrationFactor) {
     MedianFilter<FILTER_SAMPLES> filterVoltage;
     MedianFilter<FILTER_SAMPLES> filterCurrent;
     MedianFilter<FILTER_SAMPLES> filterOffset;
@@ -147,8 +147,8 @@ bool PowerMeter::measure() {
         float offset = esp_adc_cal_raw_to_voltage(offset_raw, &adc_chars);
 
         // Убираем смещение и учитываем коэффициенты усиления
-        float current = (current_with_offset - offset) / 1000.0f / CURRENT_GAIN; // Переводим в амперы
-        float voltage = (voltage_with_offset - offset) / 1000.0f / VOLTAGE_GAIN; // Переводим в вольты
+        float current = (current_with_offset - offset) / 1000.0f * DEFAULT_CURRENT_GAIN * currentCalibrationFactor; // Переводим в амперы
+        float voltage = (voltage_with_offset - offset) / 1000.0f * DEFAULT_VOLTAGE_GAIN * voltageCalibrationFactor; // Переводим в вольты
 
         sum_I += current * current;
         sum_V += voltage * voltage;

@@ -7,7 +7,7 @@
 class PowerMeter {
 public:
     // Измерение мощности
-    static bool measure();
+    static bool measure(float voltageCalibrationFactor = 1.0f, float currentCalibrationFactor = 1.0f);
 
     // Геттеры для измеренных значений
     static float getVrms() { return v_rms; }
@@ -30,8 +30,8 @@ private:
     static const uint8_t OFFSET_VOLTAGE_SAMPLES = 64; // Количество измерений для усреднения напряжения смещения
 
     // Коэффициенты усиления схем
-    static constexpr float VOLTAGE_GAIN = 0.00366666666f / 1.03894334632;  // Коэффициент усиления (напряжение)
-    static constexpr float CURRENT_GAIN = 2.0625f * (1.0f / 900) * 10 / 1.16462990295;
+    static constexpr float DEFAULT_VOLTAGE_GAIN = 1.0f / 0.00352922676;
+    static constexpr float DEFAULT_CURRENT_GAIN = 1.0f / 0.01967719515;
 
     // Пины и каналы АЦП
     static const adc1_channel_t channels[ADC_CHANNELS];
