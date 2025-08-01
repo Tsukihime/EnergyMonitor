@@ -63,6 +63,7 @@ void setup() {
         apManager.getParameter("mqttPassword").c_str()
     );
 
+    ArduinoOTA.setHostname(Config::getDeviceName().c_str());
     ArduinoOTA.begin();
     ticker.attach(5, updateState);
 }
