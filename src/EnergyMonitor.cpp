@@ -46,7 +46,7 @@ void setup() {
             {"name": "mqttLogin", "type": "text", "title": "Логин:", "value": ""},
             {"name": "mqttPassword", "type": "password", "title": "Пароль:", "value": ""}
         ]
-    },{ "title": "Корекция измерений",
+    },{ "title": "Коррекция измерений",
         "rows": [
             {"name": "currentCoeff", "type": "number", "title": "Ток:", "value": "1.0000"},
             {"name": "voltageCoeff", "type": "number", "title": "Напряжение:", "value": "1.0000"}
