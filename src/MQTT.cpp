@@ -91,63 +91,59 @@ void MQTT::onConnect() {
 
 void MQTT::sendMQTTDiscoveryConfig() {
     String state_topic = Config::getMqttPrefix() + "state";
-    String device_object = R"({
-        "identifiers": [")" + Config::getDeviceId() + R"("],
+    String device_id = Config::getDeviceId();
+
+    String discovery_message = 
+R"({"device": {
+        "identifiers": ")" + device_id + R"(",
         "name": "Energy Monitor",
         "manufacturer": "Tsukihime",
         "model": "ESP32-PowerMeter",
         "sw_version": "0.1"
-    })";
+    },
+    "origin": {
+        "name": "ESP32-PowerMeter",
+        "sw_version": "0.1",
+        "support_url": "https://github.com/Tsukihime/EnergyMonitor"
+    },
+    "components": {
+        "voltage": {
+            "platform": "sensor",
+            "unique_id": "powermeter_voltage_)" + device_id + R"(",
+            "name": "Voltage",
+            "unit_of_measurement": "V",
+            "device_class": "voltage",
+            "value_template": "{{ value_json.v_rms }}"
+        },
+        "current": {
+            "platform": "sensor",
+            "unique_id": "powermeter_current_)" + device_id + R"(",
+            "name": "Current",
+            "unit_of_measurement": "A",
+            "device_class": "current",
+            "value_template": "{{ value_json.i_rms }}"
+        },
+        "power": {
+            "platform": "sensor",
+            "unique_id": "powermeter_power_)" + device_id + R"(",
+            "name": "Power",
+            "unit_of_measurement": "W",
+            "device_class": "power",
+            "value_template": "{{ value_json.power }}"
+        },
+        "cos_phi": {
+            "platform": "sensor",
+            "unique_id": "powermeter_cos_phi_)" + device_id + R"(",
+            "name": "Power Factor",
+            "unit_of_measurement": "",
+            "device_class": "power_factor",
+            "value_template": "{{ value_json.cos_phi }}"
+        }
+    },
+    "state_topic": "home/EnergyMonitor_)" + device_id + R"(/state"
+})";
 
-    // Voltage sensor
-    String voltage_discovery_topic = "homeassistant/sensor/powermeter_voltage/config";
-    String voltage_discovery_message = R"({
-        "device": )" + device_object + R"(,
-        "unique_id": "powermeter_voltage_)" + Config::getDeviceId() + R"(",
-        "name": "Voltage",
-        "state_topic": ")" + state_topic + R"(",
-        "unit_of_measurement": "V",
-        "device_class": "voltage",
-        "value_template": "{{ value_json.v_rms }}"
-    })";
-    client.publish(voltage_discovery_topic.c_str(), voltage_discovery_message.c_str(), true);
+    String discovery_topic = "homeassistant/device/EnergyMonitor_" + device_id + "/config";
 
-    // Current sensor
-    String current_discovery_topic = "homeassistant/sensor/powermeter_current/config";
-    String current_discovery_message = R"({
-        "device": )" + device_object + R"(,
-        "unique_id": "powermeter_current_)" + Config::getDeviceId() + R"(",
-        "name": "Current",
-        "state_topic": ")" + state_topic + R"(",
-        "unit_of_measurement": "A",
-        "device_class": "current",
-        "value_template": "{{ value_json.i_rms }}"
-    })";
-    client.publish(current_discovery_topic.c_str(), current_discovery_message.c_str(), true);
-
-    // Power sensor
-    String power_discovery_topic = "homeassistant/sensor/powermeter_power/config";
-    String power_discovery_message = R"({
-        "device": )" + device_object + R"(,
-        "unique_id": "powermeter_power_)" + Config::getDeviceId() + R"(",
-        "name": "Power",
-        "state_topic": ")" + state_topic + R"(",
-        "unit_of_measurement": "W",
-        "device_class": "power",
-        "value_template": "{{ value_json.power }}"
-    })";
-    client.publish(power_discovery_topic.c_str(), power_discovery_message.c_str(), true);
-
-    // Power factor (cos phi) sensor
-    String cos_phi_discovery_topic = "homeassistant/sensor/powermeter_cos_phi/config";
-    String cos_phi_discovery_message = R"({
-        "device": )" + device_object + R"(,
-        "unique_id": "powermeter_cos_phi_)" + Config::getDeviceId() + R"(",
-        "name": "Power Factor",
-        "state_topic": ")" + state_topic + R"(",
-        "unit_of_measurement": "",
-        "device_class": "power_factor",
-        "value_template": "{{ value_json.cos_phi }}"
-    })";
-    client.publish(cos_phi_discovery_topic.c_str(), cos_phi_discovery_message.c_str(), true);
+    client.publish(discovery_topic.c_str(), discovery_message.c_str(), true);
 }

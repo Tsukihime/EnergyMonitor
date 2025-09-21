@@ -20,7 +20,7 @@ namespace Config {
     }
 
     static String getMqttPrefix() {
-        return "home/EnergyMonitor/";
+        return "home/EnergyMonitor_" + getDeviceId() + "/";
     }
 };
 
