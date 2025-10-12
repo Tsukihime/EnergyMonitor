@@ -31,8 +31,7 @@ private:
     static const uint16_t ADC_SAMPLES = SKIP_SAMPLES + 1004;
     static const uint8_t ADC_CHANNELS = 3; // Три канала: ток, напряжение и смещение
     static const uint32_t ADC_BUFFER_SIZE = ADC_SAMPLES * ADC_CHANNELS;
-    static const uint32_t ADC_TIMEOUT_MS = 120; // Таймаут 120 мс
-    static const uint8_t OFFSET_VOLTAGE_SAMPLES = 64; // Количество измерений для усреднения напряжения смещения
+    static const uint32_t ADC_TIMEOUT_MS = 120;
 
     // Коэффициенты усиления схем
     static constexpr float DEFAULT_VOLTAGE_GAIN = 1.0f / 0.00352922676;
