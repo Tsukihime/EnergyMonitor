@@ -18,6 +18,7 @@ float PowerMeter::v_rms = 0.0f;
 float PowerMeter::i_rms = 0.0f;
 float PowerMeter::p = 0.0f;
 float PowerMeter::cos_phi = 0.0f;
+float PowerMeter::frequency = 0.0f;
 esp_adc_cal_characteristics_t PowerMeter::adc_chars = {};
 adc_digi_output_data_t PowerMeter::result_buffer[PowerMeter::ADC_BUFFER_SIZE];
 
@@ -78,8 +79,9 @@ bool PowerMeter::measure(float voltageCalibrationFactor, float currentCalibratio
         return false;
     }
 
-    v_rms = i_rms = p = cos_phi = 0.0f;
+    v_rms = i_rms = p = cos_phi = frequency = 0.0f;
     float sum_V = 0.0f, sum_I = 0.0f, sum_P = 0.0f;
+    bool start_measure = false;
 
     // Запуск АЦП
     esp_err_t ret = adc_digi_start();
@@ -113,6 +115,11 @@ bool PowerMeter::measure(float voltageCalibrationFactor, float currentCalibratio
     ret = adc_digi_deinitialize();
     assert(ret == ESP_OK);
 
+    int periods = 0;
+    float prev_voltage;
+    int first_cross_index = 0;
+    int last_cross_index = 0;
+
     // Обработка данных
     for (int i = 0; i < ADC_BUFFER_SIZE; i += ADC_CHANNELS) {
         adc_digi_output_data_t *current_data = &result_buffer[i];
@@ -137,6 +144,7 @@ bool PowerMeter::measure(float voltageCalibrationFactor, float currentCalibratio
 
         if(i == ADC_CHANNELS * SKIP_SAMPLES) {
             sum_V = 0.0f, sum_I = 0.0f, sum_P = 0.0f;
+            start_measure = true;
         }
 
         //ESP_LOGE(TAG, "%u, %u, %u", voltage_raw, current_raw, offset_raw);
@@ -153,7 +161,22 @@ bool PowerMeter::measure(float voltageCalibrationFactor, float currentCalibratio
         sum_I += current * current;
         sum_V += voltage * voltage;
         sum_P += current * voltage;
+
+        bool is_zero_cross = start_measure && // Ждем начала измерений чтобы задать prev_voltage
+                             (prev_voltage <= 0 && voltage > 0); // Переход полько по фронту для подсчета полных периодов
+
+        if(is_zero_cross) {
+            if(first_cross_index == 0) {
+                first_cross_index = i;
+            }
+            last_cross_index = i;
+            periods++;
+        }
+
+        prev_voltage = voltage;
     }
+
+    frequency = ((periods - 1) * ADC_FREQ) / ((float)(last_cross_index - first_cross_index));
 
     // Расчёт RMS и cos(phi)
     v_rms = std::sqrt(sum_V / ADC_SAMPLES);

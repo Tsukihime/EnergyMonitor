@@ -14,18 +14,23 @@ public:
     static float getIrms() { return i_rms; }
     static float getP() { return p; }
     static float getCosPhi() { return cos_phi; }
+    static float getFrequency() { return frequency; }
 
 private:
     // Инициализация и настройка АЦП
     static bool adc_init();
 
     // Конфигурация АЦП
+    // get real adc freq (adc.h: ADC digital controller settings -> adc_digi_configuration_t.sample_freq_hz)
+    // interval = 5000000 / (2 * 30000)    -> Частота выборки 30 кГц, interval = 83
+    // ADC_FREQ = 5000000 / (interval * 2) -> Реальная частота = 30120 Hz
+    static const uint32_t ADC_FREQ = 30120;
     static const uint16_t FILTER_SAMPLES = 15;
     static const uint16_t SKIP_SAMPLES = FILTER_SAMPLES + 100;
-    static const uint16_t ADC_SAMPLES = SKIP_SAMPLES + 1000; // Количество выборок за цикл (33 мс при 30 кГц, 100 мс на 3 канала, 5 периодов)
-    static const uint8_t ADC_CHANNELS = 3;    // Три канала: ток, напряжение и смещение
-    static const uint32_t ADC_FREQ = 30000;   // Частота выборки 30 кГц
-    static const uint32_t ADC_BUFFER_SIZE = ADC_SAMPLES * ADC_CHANNELS; // 3000 выборок
+    // 0.1 sec * ADC_FREQ / ADC_CHANNELS = 1004 семпла -> 5 периодов за 100 мс
+    static const uint16_t ADC_SAMPLES = SKIP_SAMPLES + 1004;
+    static const uint8_t ADC_CHANNELS = 3; // Три канала: ток, напряжение и смещение
+    static const uint32_t ADC_BUFFER_SIZE = ADC_SAMPLES * ADC_CHANNELS;
     static const uint32_t ADC_TIMEOUT_MS = 120; // Таймаут 120 мс
     static const uint8_t OFFSET_VOLTAGE_SAMPLES = 64; // Количество измерений для усреднения напряжения смещения
 
@@ -35,16 +40,13 @@ private:
 
     // Пины и каналы АЦП
     static const adc1_channel_t channels[ADC_CHANNELS];
-    static const adc1_channel_t OFFSET_VOLTAGE_CH;  // Канал для измерения напряжения смещения
 
-    // Параметры АЦП
-    // static constexpr float ADC_CENTER_VOLTAGE = 1.446f; // Смещение АЦП // 2048 code // to 1470 mv calibrated
-    
     // Измеренные значения
     static float v_rms;    // Среднеквадратичное напряжение
     static float i_rms;    // Среднеквадратичный ток
     static float p;        // Активная мощность
     static float cos_phi;  // cos(phi)
+    static float frequency;// Частота в Гц
 
     // Калибровка АЦП
     static esp_adc_cal_characteristics_t adc_chars;

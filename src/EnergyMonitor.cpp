@@ -20,13 +20,15 @@ void updateState() {
         String payload = "{\"v_rms\":" + String(PowerMeter::getVrms(), 1) +
                         ",\"i_rms\":" + String(PowerMeter::getIrms(), 2) +
                         ",\"power\":" + String(PowerMeter::getP(), 0) +
-                        ",\"cos_phi\":" + String(PowerMeter::getCosPhi(), 3) + "}";
+                        ",\"cos_phi\":" + String(PowerMeter::getCosPhi(), 3) +
+                        ",\"frequency\":" + String(PowerMeter::getFrequency(), 1) + "}";
         MQTT::publish(state_topic.c_str(), payload.c_str());
 
         payload = "{\"Voltage\":" + String(PowerMeter::getVrms(), 1) +
                 ",\"Current\":" + String(PowerMeter::getIrms(), 2) +
                 ",\"Power\":" + String(PowerMeter::getP(), 0) +
-                ",\"Cos φ\":" + String(PowerMeter::getCosPhi(), 3) + "}";
+                ",\"cos_phi\":" + String(PowerMeter::getCosPhi(), 3) +
+                ",\"frequency\":" + String(PowerMeter::getFrequency(), 1) + "}";
 
         apManager.setLogJson(payload);
     } else {

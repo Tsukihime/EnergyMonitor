@@ -138,6 +138,14 @@ R"({"device": {
             "unit_of_measurement": "",
             "device_class": "power_factor",
             "value_template": "{{ value_json.cos_phi }}"
+        },
+        "frequency": {
+            "platform": "sensor",
+            "unique_id": "powermeter_frequency_)" + device_id + R"(",
+            "name": "Frequency",
+            "unit_of_measurement": "Hz",
+            "device_class": "frequency",
+            "value_template": "{{ value_json.frequency }}"
         }
     },
     "state_topic": "home/EnergyMonitor_)" + device_id + R"(/state"
