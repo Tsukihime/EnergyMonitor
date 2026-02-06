@@ -9,9 +9,9 @@ static const char *TAG = "PowerMeter";
 
 // Инициализация статических членов
 const adc1_channel_t PowerMeter::channels[PowerMeter::ADC_CHANNELS] = {
-    ADC1_CHANNEL_1, // GPIO2 (ток)
+    ADC1_CHANNEL_4, // GPIO4 (ток)
     ADC1_CHANNEL_3, // GPIO3 (напряжение)
-    ADC1_CHANNEL_4  // GPIO4 (смещение)
+    ADC1_CHANNEL_1  // GPIO2 (смещение)
 };
 
 float PowerMeter::v_rms = 0.0f;
@@ -176,8 +176,12 @@ bool PowerMeter::measure(float voltageCalibrationFactor, float currentCalibratio
         prev_voltage = voltage;
     }
 
-    frequency = ((periods - 1) * ADC_FREQ) / ((float)(last_cross_index - first_cross_index));
-
+    if(periods >= 2) {
+        frequency = ((periods - 1) * ADC_FREQ) / ((float)(last_cross_index - first_cross_index));
+    } else {
+        frequency = 0;
+    }
+    
     // Расчёт RMS и cos(phi)
     v_rms = std::sqrt(sum_V / ADC_SAMPLES);
     i_rms = std::sqrt(sum_I / ADC_SAMPLES);

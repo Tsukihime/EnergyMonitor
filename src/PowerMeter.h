@@ -12,7 +12,7 @@ public:
     // Геттеры для измеренных значений
     static float getVrms() { return v_rms; }
     static float getIrms() { return i_rms; }
-    static float getP() { return p; }
+    static float getPower() { return p; }
     static float getCosPhi() { return cos_phi; }
     static float getFrequency() { return frequency; }
 
