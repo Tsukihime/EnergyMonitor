@@ -3,6 +3,7 @@
 .vscode/c_cpp_properties.json
 .vscode/launch.json
 .vscode/ipch
+.vscode/extensions.json
 compress_to_gzip.cmd
 CMakeLists.txt
 data/*.gz
