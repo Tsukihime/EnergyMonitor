@@ -2,26 +2,40 @@
 #define CONFIG_H
 
 namespace Config {
-    static uint32_t getChipId() {
-        uint32_t chipId = 0;    
-        for (int i = 0; i < 17; i += 8) {
-            chipId |= ((ESP.getEfuseMac() >> (40 - i)) & 0xff) << i;
-        }
-    
-        return chipId;
-    }
 
-    static String getDeviceName() {
-        return "EnergyMonitor";
+inline uint32_t getChipId() {
+    uint32_t chipId = 0;
+    for (int i = 0; i < 17; i += 8) {
+        chipId |= ((ESP.getEfuseMac() >> (40 - i)) & 0xff) << i;
     }
+    return chipId;
+}
 
-    static String getDeviceId() {
-        return String(getChipId(), HEX);
-    }
+inline const char* getBaseName() {
+    return "EnergyMonitor";
+}
 
-    static String getMqttPrefix() {
-        return "home/EnergyMonitor_" + getDeviceId() + "/";
+inline String getDeviceId() {
+    char buf[9];
+    snprintf(buf, sizeof(buf), "%06x", getChipId());
+    return String(buf);
+}
+
+inline String getDeviceName() {
+    return String(getBaseName()) + "_" + getDeviceId();
+}
+
+inline String getMqttPrefix() {
+    static String prefix;
+    if (prefix.isEmpty()) {
+        prefix.reserve(48);
+        prefix = "home/";
+        prefix += getDeviceName();
+        prefix += "/";
     }
+    return prefix;
+}
+
 };
 
 #endif //CONFIG_H
