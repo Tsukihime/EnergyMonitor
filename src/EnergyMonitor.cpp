@@ -90,6 +90,18 @@ void updateState() {
     }
 }
 
+extern const uint8_t webpage_start[] asm("_binary_webpage_index_html_gz_start");
+extern const uint8_t webpage_end[]   asm("_binary_webpage_index_html_gz_end");
+
+void setupWebpage() {
+    apManager.server.on("/", HTTP_GET, [](AsyncWebServerRequest *request) {
+        size_t datalen = webpage_end - webpage_start;
+        AsyncWebServerResponse *response = request->beginResponse(200, "text/html; charset=utf-8", webpage_start, datalen);
+        response->addHeader("Content-Encoding", "gzip");
+        request->send(response);
+    });
+}
+
 void setup() {
     Serial.begin(115200);
     IndicatorSerial.begin(9600, SERIAL_8N1, -1, 21);
@@ -112,6 +124,7 @@ void setup() {
 
     apManager.begin(Config::getDeviceName());
     apManager.setCustomParameters(customParameters);
+    setupWebpage();
 
     MQTT::init(
         apManager.getParameter("mqttServer").c_str(), 
