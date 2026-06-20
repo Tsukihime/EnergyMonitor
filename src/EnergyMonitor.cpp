@@ -117,8 +117,8 @@ void setup() {
         ]
     },{ "title": "Коррекция измерений",
         "rows": [
-            {"name": "currentCoeff", "type": "number", "title": "Ток:", "value": "1.0000"},
-            {"name": "voltageCoeff", "type": "number", "title": "Напряжение:", "value": "1.0000"}
+            {"name": "currentCoeff", "type": "number", step: "0.0001", "title": "Ток:", "value": "1.0000"},
+            {"name": "voltageCoeff", "type": "number", step: "0.0001", "title": "Напряжение:", "value": "1.0000"}
         ]
     }])";
 
