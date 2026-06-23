@@ -54,37 +54,47 @@ void formatTo3Digits(float value, uint8_t* out, bool show_unit = true) {
 
 void updateState() {
     static int calls = 0;
+    static bool lowVoltageAlert = false;
 
     if (PowerMeter::measure(
         apManager.getParameter("voltageCoeff").toFloat(),
         apManager.getParameter("currentCoeff").toFloat()
     )) {
-        if (calls++ >= 5) {
-            calls = 0;
-            String state_topic = Config::getMqttPrefix() + "state";
-            String payload = "{\"v_rms\":" + String(PowerMeter::getVrms(), 1) +
-                            ",\"i_rms\":" + String(PowerMeter::getIrms(), 2) +
-                            ",\"power\":" + String(PowerMeter::getPower(), 0) +
-                            ",\"cos_phi\":" + String(PowerMeter::getCosPhi(), 3) +
-                            ",\"frequency\":" + String(PowerMeter::getFrequency(), 1) + "}";
+        String json = "{\"v_rms\":" + String(PowerMeter::getVrms(), 1) +
+                        ",\"i_rms\":" + String(PowerMeter::getIrms(), 2) +
+                        ",\"power\":" + String(PowerMeter::getPower(), 0) +
+                        ",\"cos_phi\":" + String(PowerMeter::getCosPhi(), 3) +
+                        ",\"frequency\":" + String(PowerMeter::getFrequency(), 1) + "}";
 
-            MQTT::publish(state_topic.c_str(), payload.c_str());
+        bool forcePublish = false;
+
+        if (PowerMeter::getVrms() < 150.0) {
+            if (!lowVoltageAlert) {
+                lowVoltageAlert = true;
+                forcePublish = true;
+            }
+        } else {
+            lowVoltageAlert = false;
         }
 
-        String json = "{\"Voltage\":" + String(PowerMeter::getVrms(), 1) +
-                ",\"Current\":" + String(PowerMeter::getIrms(), 2) +
-                ",\"Power\":" + String(PowerMeter::getPower(), 0) +
-                ",\"cos_phi\":" + String(PowerMeter::getCosPhi(), 3) +
-                ",\"frequency\":" + String(PowerMeter::getFrequency(), 1) + "}";
+        calls++;
+
+        if (calls >= 10 || forcePublish) {
+            calls = 0;
+            String state_topic = Config::getMqttPrefix() + "state";
+            MQTT::publish(state_topic.c_str(), json.c_str());
+        }
 
         apManager.setLogJson(json);
 
-        uint8_t display[9] = {0};
-        formatTo3Digits(PowerMeter::getVrms(), &display[0]);
-        formatTo3Digits(PowerMeter::getIrms(), &display[3]);
-        formatTo3Digits(PowerMeter::getPower() / 1000.0, &display[6], false);
+        if(calls % 2 == 0) {
+            uint8_t display[9] = {0};
+            formatTo3Digits(PowerMeter::getVrms(), &display[0]);
+            formatTo3Digits(PowerMeter::getIrms(), &display[3]);
+            formatTo3Digits(PowerMeter::getPower() / 1000.0, &display[6], false);
 
-        IndicatorSerial.write(display, 9);
+            IndicatorSerial.write(display, 9);
+        }
     } else {
         Serial.println("Измерение не выполнено!");
     }
@@ -135,7 +145,7 @@ void setup() {
 
     ArduinoOTA.setHostname(Config::getDeviceName().c_str());
     ArduinoOTA.begin();
-    ticker.attach(1, updateState);
+    ticker.attach_ms(500, updateState);
     updateState();
 }
 

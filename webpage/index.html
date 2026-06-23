@@ -196,13 +196,13 @@
             
             document.getElementById('data-block').classList.remove('connection-lost');
 
-            document.getElementById('txt-v').textContent = data.Voltage.toFixed(1);
-            document.getElementById('txt-p').textContent = data.Power;
-            document.getElementById('txt-i').textContent = data.Current.toFixed(2);
+            document.getElementById('txt-v').textContent = data.v_rms.toFixed(1);
+            document.getElementById('txt-p').textContent = data.power;
+            document.getElementById('txt-i').textContent = data.i_rms.toFixed(2);
             document.getElementById('txt-f').textContent = data.frequency.toFixed(1);
             document.getElementById('txt-phi').textContent = data.cos_phi.toFixed(3);
-            voltageData.push(data.Voltage);
-            powerData.push(data.Power);
+            voltageData.push(data.v_rms);
+            powerData.push(data.power);
 
             const currentCount = voltageData.length;
 
