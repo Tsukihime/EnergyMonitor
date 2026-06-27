@@ -6,4 +6,4 @@
 .vscode/extensions.json
 compress_to_gzip.cmd
 CMakeLists.txt
-data/*.gz
+webpage/*.gz
