@@ -113,6 +113,7 @@ R"({"device": {
             "name": "Voltage",
             "unit_of_measurement": "V",
             "device_class": "voltage",
+            "expire_after":20,
             "value_template": "{{ value_json.v_rms }}"
         },
         "current": {
@@ -121,6 +122,7 @@ R"({"device": {
             "name": "Current",
             "unit_of_measurement": "A",
             "device_class": "current",
+            "expire_after":20,
             "value_template": "{{ value_json.i_rms }}"
         },
         "power": {
@@ -129,6 +131,7 @@ R"({"device": {
             "name": "Power",
             "unit_of_measurement": "W",
             "device_class": "power",
+            "expire_after":20,
             "value_template": "{{ value_json.power }}"
         },
         "cos_phi": {
@@ -137,6 +140,7 @@ R"({"device": {
             "name": "Power Factor",
             "unit_of_measurement": "",
             "device_class": "power_factor",
+            "expire_after":20,
             "value_template": "{{ value_json.cos_phi }}"
         },
         "frequency": {
@@ -145,6 +149,7 @@ R"({"device": {
             "name": "Frequency",
             "unit_of_measurement": "Hz",
             "device_class": "frequency",
+            "expire_after":20,
             "value_template": "{{ value_json.frequency }}"
         }
     },
